@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart.js Example</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+	<div>
+		<canvas id="myChart"></canvas>
+		<button onclick="updateChart()">Update</button>
+	</div>
+<script>
+async function fetchJSONData() {
+	const url = 'http://localhost:8082/collectChartData';
+	const response = await fetch(url);
+	const jsonData = await response.json();
+	return jsonData;
+}
+
+async function updateChart() {
+	const jsonData = await fetchJSONData();
+
+	const countries = jsonData.map(state => state.country);
+	const totalDeaths = jsonData.map(state => state.latestTotalDeaths);
+
+	// Update chart data
+	myChart.data.labels = countries;
+	myChart.data.datasets[0].data = totalDeaths;
+	myChart.update();
+}
+
+// Initial chart setup
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+	type: 'bar',
+	data: {
+		labels: [],
+		datasets: [{
+			label: 'Total Deaths',
+			data: [],
+			backgroundColor: 'rgba(255, 99, 132, 0.2)',
+			borderColor: 'rgba(255, 99, 132, 1)',
+			borderWidth: 1
+		}]
+	},
+	options: {
+		scales: {
+			y: {
+				beginAtZero: true
+			}
+		}
+	}
+});
+
+// Load initial chart data
+updateChart();
+</script>
+</body>
+</html>
